@@ -1,10 +1,35 @@
 @import url('https://fonts.googleapis.com/css2?family=Raleway&display=swap');
 
+/* Modifications by Nicholas and Carlo NIGHT TEST
+.draw-button, .repo-button, .about-button, h2.svelte-18zfup0, h2.svelte-15yvine, h2.svelte-142uptq {
+	margin-top: 50px !important;
+}
+
+.draw-button, .repo-button, .pallette-button {
+	margin-left: 40px !important;
+}
+
+.about-button, .finished-drawing-button {
+	margin-right: 40px !important;
+}
+
+.pallette-button, .finished-drawing-button, .redo-button {
+	bottom: 30px !important;
+}
+
+ END OF Modifications by Nicholas and Carlo */
+
+
+:root {
+	--fontsize24px: 24px;
+}
+
 html,
 body {
 	position: relative;
 	width: 100vw;
 	height: 100vh;
+	overflow: hidden;
 }
 
 body {
@@ -18,6 +43,10 @@ body {
 a {
 	color: rgb(0, 100, 200);
 	text-decoration: none;
+}
+
+a.buttonLink {
+	width: 100%;
 }
 
 a:hover {
@@ -49,22 +78,42 @@ input:disabled {
 }
 
 button {
+	height: auto;
+	padding: 10px;
+	outline: 1px solid white;
 	color: white;
 	background: rgba(255, 255, 255, 0.25);
-	outline: none;
 	border-style: none;
 	cursor: pointer;
-	height: 76px;
 	font-family: 'Raleway', sans-serif;
 	font-weight: 400;
-	font-size: 24px;
+	font-size: var(--fontsize24px);
 	line-height: 28px;
+}
+button a, button a:visited, button a:hover {
+	color: white;
+	text-decoration: none;
+}
+
+.button-section {
+	display: flex;
+	justify-content: space-between;
+	height: 76px;
+	width: 100%;
+	gap: 10px;
+}
+.button-section button {
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-grow: 1;
 }
 
 p {
 	font-family: 'Raleway', sans-serif;
 	font-weight: 400;
-	font-size: 24px;
+	font-size: var(--fontsize24px);
 	line-height: 28px;
 }
 
@@ -74,8 +123,8 @@ button:hover {
 
 h2 {
 	font-style: normal;
-	font-weight: 400;
-	font-size: 32px;
+	font-weight: bold;
+	font-size: var(--fontsize24px); /*32px;*/
 	line-height: 38px;
 	letter-spacing: 0.02em;
 	font-family: 'Raleway', sans-serif;
@@ -101,6 +150,7 @@ h2 {
 }
 
 .modal-info {
+	outline: 1px solid white;
 	overflow: hidden;
 	background: rgba(255, 255, 255, 0.25);
 	backdrop-filter: blur(26px);
@@ -115,7 +165,7 @@ h2 {
 	align-items: center;
 	font-family: 'Raleway', sans-serif;
 	padding: 10px;
-	gap: 20px;
+	gap: 10px;
 	width: 50%;
 	min-width: 450px;
 	max-width: 690px;
@@ -130,7 +180,7 @@ p {
 	font-family: 'Raleway';
 	font-style: normal;
 	font-weight: 400;
-	font-size: 24px;
+	font-size: var(--fontsize24px);;
 	line-height: 28px;
 }
 
@@ -147,11 +197,11 @@ p {
 }
 
 .icon-button {
-	width: 48px;
-	height: 48px;
+	width: 64px;
+	height: 64px;
 	background-repeat: no-repeat;
 	background-position: center center;
-	background-size: 48px;
+	background-size: 64px;
 	position: absolute;
 	cursor: pointer;
 	margin: 10px;
@@ -167,15 +217,116 @@ p {
 .about-button {
 	top: 0px;
 	right: 0px;
-	background-image: url('/icon_info.png');
+	background-image: url('/button_about.svg');
 	position: fixed;
+}
+
+/*GALLERY*/
+.gallery {
+	background: linear-gradient(0deg, #ffffff 0%, #0094ff 100%);
+	overflow-x: hidden;
+	-webkit-overflow-scrolling: touch;
+	overflow-y: scroll;
+	width: 100vw;
+	height: 100vh;
+	display: grid;
+	grid-template-columns: 1fr 1fr 1fr 1fr;
+}
+
+.gallery .bigImageGallery {
+	grid-area: auto / auto / span 2 / span 2;
+}
+.flex-container {
+	display: flex;
+	flex-direction: column;
+	gap: 0px;
+}
+
+.gallery-item {
+	width: 100%;
+	height: 100%;
+	position: relative;
+	cursor: pointer;
+}
+
+.gallery-item .image {
+	display: block; /*grid*/
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+}
+
+.gallery-item .image img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover; /*fill*/
+}
+
+/*BUTTONS*/
+.unusableButton {
+	opacity: .5;
+	pointer-events: none;
+}
+.about-button {
+	background-image: url('/button_about.svg');
+	background-size: 64px 64px;
+}
+.about-button:hover {
+	background-image: url('/button_about_hover.svg');
+	background-size: 64px 64px;
+}
+.repo-button {
+	top: 0px;
+	left: 0px;
+	background-image: url('/button_repository.svg');
+	background-size: 64px 64px;
+	position: fixed;
+	z-index: 10000;
+}
+.repo-button:hover {
+	background-image: url('/button_repository_hover.svg');
+	background-size: 64px 64px;
+}
+.finished-drawing-button {
+	bottom: 0px;
+	right: 0px;
+	background-image: url('/button_finish.svg');
+	background-size: 64px 64px;
+	position: fixed;
+}
+.finished-drawing-button:hover {
+	background-image: url('/button_finish_hover.svg');
+	background-size: 64px 64px;
+}
+.redo-button {
+	bottom: 0px;
+	left: 50%;
+	transform: translateX(-50%);
+	background-image: url('/button_reset.svg');
+	background-size: 64px 64px;
+	position: fixed;
+}
+.redo-button:hover {
+	background-image: url('/button_reset_hover.svg');
+	background-size: 64px 64px;
+}
+.pallette-button {
+	bottom: 0px;
+	left: 0px;
+	background-image: url('/button_palette.svg');
+	background-size: 64px 64px;
+	position: fixed;
+}
+.pallette-button:hover {
+	background-image: url('/button_palette_hover.svg');
+	background-size: 64px 64px;
 }
 
 @media (max-width: 650px) {
 	button {
 		color: white;
 		background: rgba(255, 255, 255, 0.25);
-		outline: none;
+		/*outline: none;*/
 		border-style: none;
 		cursor: pointer;
 		height: 48px;
@@ -185,17 +336,60 @@ p {
 		line-height: 18px;
 	}
 	.icon-button {
-		width: 28px;
-		height: 28px;
+		width: 48px;
+		height: 48px;
 		margin: 5px;
-		background-size: 28px;
+		background-size: 48px;
 	}
 	.overlay-button {
-		width: 28px;
-		height: 28px;
-		background-size: 28px;
+		width: 48px;
+		height: 48px;
+		background-size: 48px;
 		margin: 5px;
 	}
+
+	/*BUTTONS*/
+	.about-button {
+		width: 48px;
+		height: 48px;
+		background-size: 48px;
+	}
+	.about-button:hover {
+		background-size: 48px;
+	}
+	.repo-button {
+		width: 48px;
+		height: 48px;
+		background-size: 48px;
+	}
+	.repo-button:hover {
+		background-size: 48px;
+	}
+	.finished-drawing-button {
+		width: 48px;
+		height: 48px;
+		background-size: 48px;
+	}
+	.finished-drawing-button:hover {
+		background-size: 48px;
+	}
+	.redo-button {
+		width: 48px;
+		height: 48px;
+		background-size: 48px;
+	}
+	.redo-button:hover {
+		background-size: 48px;
+	}
+	.pallette-button {
+		width: 48px;
+		height: 48px;
+		background-size: 48px;
+	}
+	.pallette-button:hover {
+		background-size: 48px;
+	}
+
 	h2 {
 		font-size: 18px;
 		line-height: 20px;
@@ -223,7 +417,7 @@ p {
 	button {
 		color: white;
 		background: rgba(255, 255, 255, 0.25);
-		outline: none;
+		/*outline: none;*/
 		border-style: none;
 		cursor: pointer;
 		height: 48px;
@@ -233,17 +427,60 @@ p {
 		line-height: 18px;
 	}
 	.icon-button {
-		width: 28px;
-		height: 28px;
+		width: 48px;
+		height: 48px;
 		margin: 5px;
-		background-size: 28px;
+		background-size: 48px;
 	}
 	.overlay-button {
-		width: 28px;
-		height: 28px;
-		background-size: 28px;
+		width: 48px;
+		height: 48px;
+		background-size: 48px;
 		margin: 5px;
 	}
+
+	/*BUTTONS*/
+	.about-button {
+		width: 48px;
+		height: 48px;
+		background-size: 48px;
+	}
+	.about-button:hover {
+		background-size: 48px;
+	}
+	.repo-button {
+		width: 48px;
+		height: 48px;
+		background-size: 48px;
+	}
+	.repo-button:hover {
+		background-size: 48px;
+	}
+	.finished-drawing-button {
+		width: 48px;
+		height: 48px;
+		background-size: 48px;
+	}
+	.finished-drawing-button:hover {
+		background-size: 48px;
+	}
+	.redo-button {
+		width: 48px;
+		height: 48px;
+		background-size: 48px;
+	}
+	.redo-button:hover {
+		background-size: 48px;
+	}
+	.pallette-button {
+		width: 48px;
+		height: 48px;
+		background-size: 48px;
+	}
+	.pallette-button:hover {
+		background-size: 48px;
+	}
+
 	#title {
 		font-size: 18px;
 		line-height: 20px;
@@ -274,3 +511,9 @@ p {
 		width: 80%;
 	}
 }
+
+
+
+
+
+

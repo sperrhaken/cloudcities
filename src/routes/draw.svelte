@@ -116,7 +116,7 @@
 		disableDraw = false;
 	};
 	const returnHome = () => {
-		window.open('https://cloudcities.org', '_self');
+		window.open('https://www.cloudcities.org', '_self');
 	};
 </script>
 

@@ -6,17 +6,23 @@
 	export let image;
 
 	const closeLargeImage = () => {
-		closeButtonSrc = 'button_close.png';
+		closeButtonSrc = 'button_close.svg';
 		dispatch('closeLargeImage');
+	};
+	const closeGalleryRemix = () => {
+		closeButtonSrc = 'button_close.svg';
+		openComponent = 'gallery';
+		console.log(openComponent);
+		dispatch('closeGalleryRemix');
 	};
 
 	const clickDraw = () => {
 		dispatch('clickDraw');
 	};
 
-	let drawButtonSrc = 'draw-unselected.png';
-	let aboutButtonSrc = 'icon_info.png';
-	let closeButtonSrc = 'button_close.png';
+	let drawButtonSrc = 'button_draw.svg';
+	let aboutButtonSrc = 'button_about.svg';
+	let closeButtonSrc = 'button_close.svg';
 </script>
 
 <div class="overlay">
@@ -25,45 +31,57 @@
 			<img
 				src={drawButtonSrc}
 				alt="draw-button"
-				class="icon-button"
+				class="icon-button draw-button"
 				on:click={clickDraw}
-				on:mouseenter={() => (drawButtonSrc = 'draw-hover.png')}
-				on:mouseleave={() => (drawButtonSrc = 'draw-unselected.png')}
+				on:mouseenter={() => (drawButtonSrc = 'button_draw_hover.svg')}
+				on:mouseleave={() => (drawButtonSrc = 'button_draw.svg')}
 			/>
 		</a>
-		<h2>Cloud Cities</h2>
-		<a href="https://cloudcities.studiotomassaraceno.org">
+		<!--h2>Cloud Cities</h2-->
+		<a href="https://cloudcities.studiotomassaraceno.org" target="_blank">
 			<img
 				src={aboutButtonSrc}
 				alt="about-button"
-				class="icon-button"
-				on:mouseenter={() => (aboutButtonSrc = 'icon_info_hover.png')}
-				on:mouseleave={() => (aboutButtonSrc = 'icon_info.png')}
+				class="icon-button about-button"
+				on:mouseenter={() => (aboutButtonSrc = 'button_about_hover.svg')}
+				on:mouseleave={() => (aboutButtonSrc = 'button_about.svg')}
 			/>
 		</a>
 	{/if}
 	{#if openComponent === 'individualPost'}
-		<img
-			class="icon-button"
-			alt="exit-button"
-			src={closeButtonSrc}
-			on:click={closeLargeImage}
-			on:mouseenter={() => (closeButtonSrc = 'button_close_hover.png')}
-			on:mouseleave={() => (closeButtonSrc = 'button_close.png')}
-		/>
+		<a>
+			<img
+				class="icon-button"
+				alt="exit-button"
+				src={closeButtonSrc}
+				on:click={closeLargeImage}
+				on:mouseenter={() => (closeButtonSrc = 'button_close_hover.svg')}
+				on:mouseleave={() => (closeButtonSrc = 'button_close.svg')}
+			/>
+		</a>
 		<h2>{image.title}</h2>
 		<a href="https://cloudcities.studiotomassaraceno.org">
 			<img
 				src={aboutButtonSrc}
 				alt="about-button"
 				class="icon-button"
-				on:mouseenter={() => (aboutButtonSrc = 'icon_info_hover.png')}
-				on:mouseleave={() => (aboutButtonSrc = 'icon_info.png')}
+				on:mouseenter={() => (aboutButtonSrc = 'button_about_hover.svg')}
+				on:mouseleave={() => (aboutButtonSrc = 'button_about.svg')}
 			/>
 		</a>
 	{/if}
 	{#if openComponent === 'remix'}
-		<h2 id="remix">Select a drawing to re/interpret</h2>
+		<a>
+			<img
+				class="icon-button"
+				alt="exit-button"
+				src={closeButtonSrc}
+				on:click={closeGalleryRemix}
+				on:mouseenter={() => (closeButtonSrc = 'button_close_hover.svg')}
+				on:mouseleave={() => (closeButtonSrc = 'button_close.svg')}
+			/>
+		</a>
+		<h2 id="remix"><!--Select a drawing to re/interpret--></h2>
 	{/if}
 </div>
 

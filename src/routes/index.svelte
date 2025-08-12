@@ -47,10 +47,11 @@
 
 {#if start && $welcomeToCloudCities.length > 0 && $welcomeTitle}
 	<Start
-		title={$welcomeTitle}
+		title="{$welcomeTitle}"
 		modalText={$welcomeToCloudCities}
 		on:enterCloudcities={leaveStartPage}
 	/>
+	<Overlay openComponent={component} image={chosenImage} on:closeLargeImage={closeIndividualPost} />
 {:else}
 	<Overlay openComponent={component} image={chosenImage} on:closeLargeImage={closeIndividualPost} />
 {/if}
