@@ -48,3 +48,41 @@
         name: nginx
         enabled: true
         state: restarted
+
+
+
+    - name: Set-up the CloudCities App
+      vars:
+        app_repo: https://github.com/sperrhaken/cloudcities.git
+        app_version: commit-the-rest
+        app_user: cloudcities-app
+      block:
+        - name: Create a user for the CloudCities app
+          ansible.builtin.user:
+            name: "{{ app_user }}"
+            system: true
+            password_lock: true
+            shell: /usr/bin/bash
+        - name: Install packages for the CloudCities app
+          ansible.builtin.apt:
+            name: "{{ item }}"
+            state: latest
+          loop:
+            - npm
+            # needed for ansible to become a non-privileged user if the
+            # connection was made with a user that is also non-privileged
+            # (i.e. not root)
+            - acl
+        - name: Block to run as app_user
+          become_user: "{{ app_user }}"
+          become: true
+          block:
+            - name: Pull CloudCities app
+              ansible.builtin.git:
+                repo: "{{ app_repo }}"
+                dest: "/home/{{ app_user }}/app"
+                version: "{{ app_version }}"
+            - name: Build CloudCities app
+              ansible.builtin.command:
+                cmd: npm ci
+                chdir: "/home/{{ app_user }}/app"
