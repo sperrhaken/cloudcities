@@ -1,0 +1,50 @@
+- name: Set-up the CloudCities VPS
+  hosts: cloudcities
+  become: true
+
+  tasks:
+    - name: Install packages
+      ansible.builtin.apt:
+        name: "{{ item }}"
+        state: latest
+      loop:
+        - nginx
+        - certbot
+        - python3-certbot-nginx
+
+    - name: Configure CloudCities HTTP
+      block:
+        - name: Copy HTTP configuration file
+          ansible.builtin.copy:
+            src: nginx/sites-available/cloudcities-app-http
+            dest: /etc/nginx/sites-available/
+            mode: 0644
+        - name: Enable HTTP configuration file
+          ansible.builtin.file:
+            src: ../sites-available/cloudcities-app-http
+            dest: /etc/nginx/sites-enabled/cloudcities-app-http
+            state: link
+        - name: Disable the default nginx configuration file
+          ansible.builtin.file:
+            path: /etc/nginx/sites-enabled/default
+            state: absent
+        - name: Create .well-known/acme-challenge directory
+          ansible.builtin.file:
+            path: "{{ item }}"
+            state: directory
+            mode: 0755
+            owner: root
+            group: root
+          loop:
+            - /var/www/.well-known
+            - /var/www/.well-known/acme-challenge
+
+
+    # TODO: Configure CloudCities HTTPS
+
+
+    - name: Enable nginx and ensure it is started
+      ansible.builtin.service:
+        name: nginx
+        enabled: true
+        state: restarted
