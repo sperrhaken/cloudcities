@@ -86,3 +86,51 @@
               ansible.builtin.command:
                 cmd: npm ci
                 chdir: "/home/{{ app_user }}/app"
+
+
+    - name: Firewall rules
+      block:
+        - name: "Firewall: Allow related/established"
+          ansible.builtin.iptables:
+            ip_version: both
+            chain: INPUT
+            ctstate:
+              - RELATED
+              - ESTABLISHED
+            jump: ACCEPT
+        - name: "Firewall: Allow all on localhost"
+          ansible.builtin.iptables:
+            ip_version: both
+            chain: INPUT
+            in_interface: lo
+            jump: ACCEPT
+        - name: "Firewall: Open ports"
+          ansible.builtin.iptables:
+            ip_version: both
+            chain: INPUT
+            protocol: tcp
+            destination_port: "{{ item }}"
+            jump: ACCEPT
+          loop:
+            - 22
+            - 80
+            - 443
+        - name: "Firewall: INPUT policy DROP"
+          ansible.builtin.iptables:
+            ip_version: both
+            chain: INPUT
+            policy: DROP
+
+    - name: "Firewall: Make iptables rules persistent"
+      block:
+        - name: "Firewall: Install iptables-persistent"
+          ansible.builtin.apt:
+            name: iptables-persistent
+            state: latest
+        - name: "Firewall: Save iptables rule persistently"
+          ansible.builtin.command:
+            cmd: netfilter-persistent save
+        - name: "Firewall: Ensure netfilter-persistent.service is enabled"
+          ansible.builtin.service:
+            name: netfilter-persistent
+            enabled: true
