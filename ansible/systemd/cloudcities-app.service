@@ -1,0 +1,11 @@
+[Unit]
+Description=The CloudCities App
+
+[Service]
+Type=exec
+User={{ app_user }}
+ExecStart=node {{ app_dir }}/server.js
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

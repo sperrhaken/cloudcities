@@ -56,36 +56,55 @@
         app_repo: https://github.com/sperrhaken/cloudcities.git
         app_version: commit-the-rest
         app_user: cloudcities-app
+        app_dir: "/home/{{ app_user }}/app/"
       block:
-        - name: Create a user for the CloudCities app
+        - name: "CloudCities App: Create user {{ app_user }}"
           ansible.builtin.user:
             name: "{{ app_user }}"
             system: true
             password_lock: true
             shell: /usr/bin/bash
-        - name: Install packages for the CloudCities app
+        - name: "CloudCities App: Install distribution packages"
           ansible.builtin.apt:
             name: "{{ item }}"
             state: latest
           loop:
             - npm
-            # needed for ansible to become a non-privileged user if the
-            # connection was made with a user that is also non-privileged
+            # acl is needed for ansible to become a non-privileged user if
+            # the connection was made with a user that is also non-privileged
             # (i.e. not root)
             - acl
         - name: Block to run as app_user
           become_user: "{{ app_user }}"
           become: true
           block:
-            - name: Pull CloudCities app
+            - name: "CloudCities App: Pull git repo"
               ansible.builtin.git:
                 repo: "{{ app_repo }}"
-                dest: "/home/{{ app_user }}/app"
+                dest: "{{ app_dir }}"
                 version: "{{ app_version }}"
-            - name: Build CloudCities app
+            - name: "CloudCities App: Run npm ci"
               ansible.builtin.command:
                 cmd: npm ci
-                chdir: "/home/{{ app_user }}/app"
+                chdir: "{{ app_dir }}"
+            - name: "CloudCities App: Build"
+              ansible.builtin.command:
+                cmd: npm run build
+                chdir: "{{ app_dir }}"
+        - name: "CloudCities App: Copy service file"
+          ansible.builtin.template:
+            src: systemd/cloudcities-app.service
+            dest: /etc/systemd/system/cloudcities-app.service
+            owner: root
+            group: root
+            mode: 0744
+        - name: "CloudCities App: Enable and start service"
+          ansible.builtin.service:
+            name: cloudcities-app
+            enabled: true
+            state: restarted
+            daemon_reload: true
+
 
 
     - name: Firewall rules
