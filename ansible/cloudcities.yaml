@@ -99,7 +99,7 @@
     - name: Set-up the CloudCities App
       vars:
         app_repo: https://github.com/sperrhaken/cloudcities.git
-        app_version: commit-the-rest
+        app_version: master
         app_user: cloudcities-app
         app_dir: "/home/{{ app_user }}/app/"
       block:
