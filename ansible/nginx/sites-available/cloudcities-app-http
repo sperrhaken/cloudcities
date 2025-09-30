@@ -1,0 +1,17 @@
+server {
+    # Listen on HTTP and redirect all traffic to HTTPS
+    # except those needed for the ACME challenge.
+
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    server_name cloudcities.org www.cloudcities.org;
+
+    location / {
+        return 301 https://cloudcities.org$request_uri;
+    }
+
+    location ^~ /.well-known/acme-challenge/ {
+        root /var/www/;
+    	default_type "text/plain";
+    }
+}

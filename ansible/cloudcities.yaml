@@ -1,0 +1,200 @@
+- name: Set-up the CloudCities VPS
+  hosts: cloudcities
+  become: true
+
+  tasks:
+    - name: Install packages
+      ansible.builtin.apt:
+        name: "{{ item }}"
+        state: latest
+      loop:
+        - nginx
+        - certbot
+
+    - name: Configure CloudCities HTTP
+      block:
+        - name: Copy HTTP configuration file
+          ansible.builtin.copy:
+            src: nginx/sites-available/cloudcities-app-http
+            dest: /etc/nginx/sites-available/
+            mode: 0644
+        - name: Enable HTTP configuration file
+          ansible.builtin.file:
+            src: ../sites-available/cloudcities-app-http
+            dest: /etc/nginx/sites-enabled/cloudcities-app-http
+            state: link
+        - name: Disable the default nginx configuration file
+          ansible.builtin.file:
+            path: /etc/nginx/sites-enabled/default
+            state: absent
+        - name: Create .well-known/acme-challenge directory
+          ansible.builtin.file:
+            path: "{{ item }}"
+            state: directory
+            mode: 0755
+            owner: root
+            group: root
+          loop:
+            - /var/www/.well-known
+            - /var/www/.well-known/acme-challenge
+        - name: Enable nginx and ensure it is started
+          ansible.builtin.service:
+            name: nginx
+            enabled: true
+            state: reloaded
+
+
+    - name: Configure CloudCities HTTPS
+      block:
+        - name: "Register with Let's Encrypt"
+          ansible.builtin.command:
+            argv:
+              - certbot
+              - -n
+              - register
+              - -m
+              - "{{ letsencrypt_register_addresses | join(',') }}"
+              - --agree-tos
+            creates: /etc/letsencrypt/accounts
+        - name: "Request certificates"
+          ansible.builtin.command:
+            argv:
+              - certbot
+              - -n
+              - certonly
+              - --webroot
+              - --webroot-path
+              - /var/www/
+              - -d www.cloudcities.org,cloudcities.org
+            creates: /etc/letsencrypt/www.cloudcities.org
+        - name: Copy HTTPS configuration file
+          ansible.builtin.copy:
+            src: nginx/sites-available/cloudcities-app-https
+            dest: /etc/nginx/sites-available/
+            mode: 0644
+        - name: Enable HTTPS configuration file
+          ansible.builtin.file:
+            src: ../sites-available/cloudcities-app-https
+            dest: /etc/nginx/sites-enabled/cloudcities-app-https
+            state: link
+        - name: Reload nginx
+          ansible.builtin.service:
+            name: nginx
+            enabled: true
+            state: reloaded
+        - name: "Copy Let's Encrypt deployment hook"
+          ansible.builtin.copy:
+            src: letsencrypt/reload-nginx-on-deploy
+            dest: /etc/letsencrypt/renewal-hooks/deploy/
+            mode: 0744
+        - name: "Enable Let's Encrypt autorenewal"
+          ansible.builtin.service:
+            name: certbot.timer
+            enabled: true
+            state: started
+
+
+
+
+    - name: Set-up the CloudCities App
+      vars:
+        app_repo: https://github.com/sperrhaken/cloudcities.git
+        app_version: master
+        app_user: cloudcities-app
+        app_dir: "/home/{{ app_user }}/app/"
+      block:
+        - name: "CloudCities App: Create user {{ app_user }}"
+          ansible.builtin.user:
+            name: "{{ app_user }}"
+            system: true
+            password_lock: true
+            shell: /usr/bin/bash
+        - name: "CloudCities App: Install distribution packages"
+          ansible.builtin.apt:
+            name: "{{ item }}"
+            state: latest
+          loop:
+            - npm
+            # acl is needed for ansible to become a non-privileged user if
+            # the connection was made with a user that is also non-privileged
+            # (i.e. not root)
+            - acl
+        - name: Block to run as app_user
+          become_user: "{{ app_user }}"
+          become: true
+          block:
+            - name: "CloudCities App: Pull git repo"
+              ansible.builtin.git:
+                repo: "{{ app_repo }}"
+                dest: "{{ app_dir }}"
+                version: "{{ app_version }}"
+            - name: "CloudCities App: Run npm ci"
+              ansible.builtin.command:
+                cmd: npm ci
+                chdir: "{{ app_dir }}"
+            - name: "CloudCities App: Build"
+              ansible.builtin.command:
+                cmd: npm run build
+                chdir: "{{ app_dir }}"
+        - name: "CloudCities App: Copy service file"
+          ansible.builtin.template:
+            src: systemd/cloudcities-app.service
+            dest: /etc/systemd/system/cloudcities-app.service
+            owner: root
+            group: root
+            mode: 0744
+        - name: "CloudCities App: Enable and start service"
+          ansible.builtin.service:
+            name: cloudcities-app
+            enabled: true
+            state: restarted
+            daemon_reload: true
+
+
+
+    - name: Firewall rules
+      block:
+        - name: "Firewall: Allow related/established"
+          ansible.builtin.iptables:
+            ip_version: both
+            chain: INPUT
+            ctstate:
+              - RELATED
+              - ESTABLISHED
+            jump: ACCEPT
+        - name: "Firewall: Allow all on localhost"
+          ansible.builtin.iptables:
+            ip_version: both
+            chain: INPUT
+            in_interface: lo
+            jump: ACCEPT
+        - name: "Firewall: Open ports"
+          ansible.builtin.iptables:
+            ip_version: both
+            chain: INPUT
+            protocol: tcp
+            destination_port: "{{ item }}"
+            jump: ACCEPT
+          loop:
+            - 22
+            - 80
+            - 443
+        - name: "Firewall: INPUT policy DROP"
+          ansible.builtin.iptables:
+            ip_version: both
+            chain: INPUT
+            policy: DROP
+
+    - name: "Firewall: Make iptables rules persistent"
+      block:
+        - name: "Firewall: Install iptables-persistent"
+          ansible.builtin.apt:
+            name: iptables-persistent
+            state: latest
+        - name: "Firewall: Save iptables rule persistently"
+          ansible.builtin.command:
+            cmd: netfilter-persistent save
+        - name: "Firewall: Ensure netfilter-persistent.service is enabled"
+          ansible.builtin.service:
+            name: netfilter-persistent
+            enabled: true
