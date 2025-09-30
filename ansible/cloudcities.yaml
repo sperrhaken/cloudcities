@@ -82,6 +82,16 @@
             name: nginx
             enabled: true
             state: reloaded
+        - name: "Copy Let's Encrypt deployment hook"
+          ansible.builtin.copy:
+            src: letsencrypt/reload-nginx-on-deploy
+            dest: /etc/letsencrypt/renewal-hooks/deploy/
+            mode: 0744
+        - name: "Enable Let's Encrypt autorenewal"
+          ansible.builtin.service:
+            name: certbot.timer
+            enabled: true
+            state: started
 
 
 
