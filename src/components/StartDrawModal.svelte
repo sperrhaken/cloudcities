@@ -12,15 +12,19 @@
 	let instructionsText;
 	onMount(async () => {
 		let startText = document.getElementById('cloudstobe');
-		startText.innerHTML = cloudsToBe[0];
+		//startText.innerHTML = cloudsToBe[0];
+		startText.innerHTML = '<p>You are invited to draw upon the ocean of air and interpret its many possible relations. An image of cloud formation – a <i>mise-en-Aeroscène</i> – has been selected at random from the project’s growing repository. However, should the sky above you already be lucid with stories, upload your own image and begin interpreting what appears closest.</p>'
 
 		let drawButton = document.getElementById('draw-button');
 		let remixButton = document.getElementById('remix-button');
 		let uploadButton = document.getElementById('upload-button');
 
-		drawButton.innerHTML = cloudsToBe[1];
-		remixButton.innerHTML = cloudsToBe[2];
-		uploadButton.innerHTML = cloudsToBe[3];
+		//drawButton.innerHTML = cloudsToBe[1];
+		//remixButton.innerHTML = cloudsToBe[2];
+		//uploadButton.innerHTML = cloudsToBe[3];
+		drawButton.innerHTML = 'Draw on this&nbsp;canvas';
+		remixButton.innerHTML = 'Remix from the&nbsp;repository'
+		uploadButton.innerHTML = 'Upload your own&nbsp;canvas';
 		instructionsText = document.getElementById('drawInstructions');
 		instructionsText.innerHTML = drawInstructions[0];
 		let beginButton = document.getElementById('begin-button');
@@ -81,15 +85,25 @@
 	};
 </script>
 
-<div
-	class="modal-container"
+<div class="modal-container"
 	transition:fade
-	style="background-image: url({propValue}); background-size: cover; background-position: center"
->
+	style="background-image: url({propValue}); background-size: cover; background-position: center">
+
+	{#if startDrawModal && !straightToInstructions}
 	<div class="icon-button repo-button" on:touchstart={redirectMobile} on:click={redirectMobile} />
+	{:else}
+	<div class="icon-button repo-button unusableButton" on:touchstart={redirectMobile} on:click={redirectMobile} />
+	{/if}
+
 	<div class="modal-container" />
 	<h2 id="title">Cloud Cities</h2>
+
+	{#if startDrawModal && !straightToInstructions}
 	<div class="icon-button about-button" on:click={goToAbout} />
+	{:else}
+	<div class="icon-button about-button unusableButton" on:click={goToAbout} />
+	{/if}
+
 	{#if startDrawModal && !straightToInstructions}
 		<div class="modal-info">
 			<h2>{title}</h2>
@@ -114,23 +128,22 @@
 		<div id="drawInstructions" />
 		<button id="begin-button" on:click={startDrawing} />
 	</div>
+
+	{#if !startDrawModal }
+	<div
+		class="icon-button pallette-button"
+		id="p-button"
+		on:click={startDrawing}
+	/>
+	<div
+		class="icon-button finished-drawing-button unusableButton"
+		id="finish-button"
+	/>
+	{/if}
 </div>
 
 <style>
-	.button-section {
-		display: flex;
-		justify-content: space-between;
-		height: 76px;
-		width: 100%;
-		gap: 2px;
-	}
-	.button-section button {
-		height: 100%;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		flex-grow: 1;
-	}
+	/*MOVE THESE TO GLOBAL.CSS*/
 
 	#drawOnUpload-button {
 		width: 100%;
@@ -152,7 +165,7 @@
 		width: 100%;
 	}
 	.repo-button {
-		background-image: url('/button_repository.png');
+		background-image: url('/button_repository.svg');
 		z-index: 10000;
 	}
 

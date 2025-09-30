@@ -346,7 +346,9 @@
 <div id="canvas-container">
 	<P5 {sketch} />
 	<h2 id="title">Cloud Cities</h2>
-	<div class="icon-button about-button" on:click={goToAbout} />
+	<!--div class="icon-button about-button" on:click={goToAbout} /-->
+	<a href="https://cloudcities.studiotomassaraceno.org" target="_blank" alt="about-button" class="icon-button about-button"></a>
+
 	<div
 		class="icon-button repo-button"
 		on:mouseenter={mouseEnterButton}
@@ -541,16 +543,6 @@
 		top: 8px;
 	}
 
-	.repo-button {
-		top: 0px;
-		left: 0px;
-		background-image: url('/button_repository.png');
-		position: fixed;
-		z-index: 10000;
-	}
-	.repo-button:hover {
-		background-image: url('/button_repository_hover.png');
-	}
 	.draw-settings {
 		width: 300px;
 		padding: 10px;
@@ -608,39 +600,17 @@
 		height: 5px;
 	}
 
-	.finished-drawing-button {
-		bottom: 0px;
-		right: 0px;
-		background-image: url('/button_finish.png');
-		position: fixed;
-	}
-
-	.redo-button {
-		bottom: 0px;
-		left: 50%;
-		transform: translateX(-50%);
-		background-image: url('/button_reset.png');
-		position: fixed;
-	}
-
-	.pallette-button {
-		bottom: 0px;
-		left: 0px;
-		background-image: url('/button_pallette.png');
-		position: fixed;
-	}
-
-	.about-button {
+	/*.about-button {
 		top: 0px;
 		right: 0px;
-		background-image: url('/icon_info.png');
+		background-image: url('/button_about.svg');
 		position: fixed;
 		z-index: 10000;
 	}
 
 	.about-button:hover {
-		background-image: url('/icon_info_hover.png');
-	}
+		background-image: url('/button_about_hover.svg');
+	}*/
 
 	.style-section,
 	.input-section {
@@ -655,10 +625,10 @@
 	.exit-button {
 		bottom: 0px;
 		left: 0px;
-		background-image: url('/button_close.png');
+		background-image: url('/button_close.svg');
 	}
 	.exit-button:hover {
-		background-image: url('/button_close_hover.png');
+		background-image: url('/button_close_hover.svg');
 	}
 
 	.input-section p {

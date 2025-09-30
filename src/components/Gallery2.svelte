@@ -20,10 +20,12 @@
 		if (createInfoModals) {
 			if (imageDetail) {
 				e.srcElement.children[1].style.visibility = 'visible';
-				e.srcElement.children[0].children[0].style.transform = 'scale(1.2)';
+				e.srcElement.children[0].children[0].style.transform = 'scale(1.1)';
+				e.srcElement.children[0].children[0].style.filter = 'blur(6px)';
 			} else {
 				e.srcElement.children[1].style.visibility = 'hidden';
 				e.srcElement.children[0].children[0].style.transform = 'scale(1)';
+				e.srcElement.children[0].children[0].style.filter = 'blur(0px)';
 			}
 			imageDetail = !imageDetail;
 		}
@@ -53,7 +55,7 @@
 		//don't create info modals on mobile
 
 		if (window.screen.width <= 560) {
-			createInfoModals = false;
+			//createInfoModals = false;
 			window.addEventListener('scroll', scrollFunction);
 		}
 		let gallery = document.getElementById('gallery');
@@ -83,13 +85,67 @@
 
 		let imgContainer = document.getElementsByClassName('gallery-item');
 		for (let i = 0; i < imgContainer.length; i++) {
+
+			/*if(i == 0){
+				imgContainer[i].classList.add('bigGalleryImage');
+				console.log(imgContainer[i],i);
+			}*/
+
 			imgContainer[i].addEventListener('mouseover', function (e) {});
 		}
 	});
 </script>
 
 <div class="gallery" id="gallery">
-	<div class="flex-container" id="flex-container1">
+	{#each repoImages as image, i}
+		<!--1 column: none, 2: 0, 3: 0, 4: 0-->
+		<!--2: {#if i == 0 | i == 5 | i == 10 | i == 15 | i == 20 | i == 25 } -->
+		<!--3: {#if i == 0 | i == 4 | i == 6 | i == 10 | i == 12 | i == 16 } -->
+		<!--4: {#if i == 0 | i == 7 | i == 10 | i == 17 | i == 20 | i == 27 } -->
+		{#if (columns == 4 && i == 0 | i % 10 == 0 | (i-7) % 10 == 0)
+			|| (columns == 3 && i == 0 | (i+2) % 6 == 0 | i % 6 == 0)
+			|| (columns == 2 && i == 0 | i % 5 == 0) }
+		<div class="gallery-container bigImageGallery" on:click={openImage(image)}>
+			<!--p>{i}</p-->
+			<div class="gallery-item" on:mouseenter={showImageDetail} on:mouseleave={showImageDetail}>
+				<div class="image">
+					<img src={image.link} alt="" />
+				</div>
+				{#if createInfoModals}
+					<div class="img-info" style="visibility: hidden">
+						<div class="info-text">
+							<h2 class="desc-text">{image.title}</h2>
+							<p>{image.date}</p>
+							{#if image.location !== 'undefined'}
+								<p>{image.location}</p>
+							{/if}
+						</div>
+					</div>
+				{/if}
+			</div>
+		</div>
+		{:else}
+		<div class="gallery-container" on:click={openImage(image)}>
+			<div class="gallery-item" on:mouseenter={showImageDetail} on:mouseleave={showImageDetail}>
+				<div class="image">
+					<img src={image.link} alt="" />
+				</div>
+				{#if createInfoModals}
+					<div class="img-info" style="visibility: hidden">
+						<div class="info-text">
+							<h2 class="desc-text">{image.title}</h2>
+							<p>{image.date}</p>
+							{#if image.location !== 'undefined'}
+								<p>{image.location}</p>
+							{/if}
+						</div>
+					</div>
+				{/if}
+			</div>
+		</div>
+		{/if}
+	{/each}
+	<!--div class="flex-container" id="flex-container1">
 		{#each repoImages as image, i}
 			{#if i % columns == 0}
 				<div class="gallery-container" on:click={openImage(image)}>
@@ -202,44 +258,11 @@
 				{/if}
 			{/each}
 		</div>
-	{/if}
+	{/if}-->
 </div>
 
 <style>
-	.gallery {
-		background: linear-gradient(0deg, #ffffff 0%, #0094ff 100%);
-		overflow-x: hidden;
-		-webkit-overflow-scrolling: touch;
-		overflow-y: scroll;
-		width: 100vw;
-		height: 100vh;
-		display: grid;
-		grid-template-columns: 1fr 1fr 1fr 1fr;
-	}
-	.flex-container {
-		display: flex;
-		flex-direction: column;
-		gap: 0px;
-	}
-
-	.gallery-item {
-		width: 100%;
-		position: relative;
-		cursor: pointer;
-	}
-
-	.gallery-item .image {
-		display: grid;
-		width: 100%;
-		/*height: 100%;*/
-		overflow: hidden;
-	}
-
-	.gallery-item .image img {
-		width: 100%;
-		/*height: 100%;*/
-		object-fit: fill;
-	}
+	/*BRING OVER TO GLOBAL.CSS*/
 
 	.img-info {
 		position: absolute;
@@ -255,15 +278,19 @@
 
 	.info-text {
 		position: absolute;
-		bottom: 0px;
+		bottom: 10px;
 		margin-left: 10px;
 	}
 
 	.info-text > h2 {
 		margin-top: 5px;
+		margin-bottom: 10px;
 		display: flex;
 		text-align: left;
 		line-height: unset;
+	}
+	.info-text > p {
+		font-size: 20px;
 	}
 
 	p {
@@ -277,12 +304,16 @@
 		font-size: 20px;
 	}
 
+	.gallery-container:hover {
+		border: 1px solid white;
+	}
 	img:hover {
-		transform: scale(1.2);
-		-ms-transform: scale(1.2); /* IE 9 */
-		-moz-transform: scale(1.2); /* Firefox */
-		-webkit-transform: scale(1.2); /* Safari and Chrome */
-		-o-transform: scale(1.2); /* Opera */
+		filter: blur(6px);
+		transform: scale(1.1);
+		-ms-transform: scale(1.1);
+		-moz-transform: scale(1.1);
+		-webkit-transform: scale(1.1);
+		-o-transform: scale(1.1);
 	}
 
 	@media (max-width: 1500px) {
@@ -294,6 +325,17 @@
 	@media (max-width: 700px) {
 		.gallery {
 			grid-template-columns: 1fr 1fr;
+		}
+		.gallery-item:hover > .img-info {
+			visibility: visible!important;
+		}
+		.gallery-item:hover img {
+			filter: blur(6px)!important;
+			transform: scale(1.1)!important;
+			-ms-transform: scale(1.1)!important;
+			-moz-transform: scale(1.1)!important;
+			-webkit-transform: scale(1.1)!important;
+			-o-transform: scale(1.1)!important;
 		}
 	}
 
